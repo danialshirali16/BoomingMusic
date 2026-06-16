@@ -40,6 +40,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentFullCoverPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.resources.showBounceAnimation
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -56,8 +57,7 @@ import java.util.LinkedList
  */
 class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_full_cover_player_playback_controls) {
 
-    private var _binding: FragmentFullCoverPlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentFullCoverPlayerPlaybackControlsBinding::bind)
 
     override val playPauseFab: FloatingActionButton
         get() = binding.playPauseButton
@@ -91,7 +91,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentFullCoverPlayerPlaybackControlsBinding.bind(view)
 
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
@@ -176,28 +175,27 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
     }
 
     override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {
-        _binding?.let { nonNullBinding ->
-            nonNullBinding.title.text = currentSong.title
-            nonNullBinding.text.text = getSongArtist(currentSong)
-        }
+        if (view == null) return
+        binding.title.text = currentSong.title
+        binding.text.text = getSongArtist(currentSong)
     }
 
     override fun onExtraInfoChanged(extraInfo: String?) {
-        _binding?.let { nonNullBinding ->
-            if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo.text = extraInfo
-                nonNullBinding.songInfo.isVisible = true
-            } else {
-                nonNullBinding.songInfo.isVisible = false
-            }
+        if (view == null) return
+        if (isExtraInfoEnabled()) {
+            binding.songInfo.text = extraInfo
+            binding.songInfo.isVisible = true
+        } else {
+            binding.songInfo.isVisible = false
         }
     }
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
+        if (view == null) return
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_play_24dp)
         }
     }
 
@@ -212,10 +210,6 @@ class FullCoverPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragm
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         super.onSharedPreferenceChanged(sharedPreferences, key)

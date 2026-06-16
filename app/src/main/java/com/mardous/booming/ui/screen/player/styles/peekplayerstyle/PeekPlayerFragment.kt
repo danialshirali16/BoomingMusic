@@ -30,6 +30,7 @@ import com.google.android.material.color.MaterialColors
 import com.mardous.booming.R
 import com.mardous.booming.core.model.player.*
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentPeekPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -43,8 +44,7 @@ import com.mardous.booming.util.Preferences
  */
 class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
 
-    private var _binding: FragmentPeekPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentPeekPlayerBinding::bind)
 
     private lateinit var controlsFragment: PeekPlayerControlsFragment
 
@@ -61,7 +61,6 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentPeekPlayerBinding.bind(view)
         setupToolbar()
         inflateMenuInView(playerToolbar)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
@@ -76,21 +75,19 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect { currentSong ->
-                _binding?.let { nonNullBinding ->
-                    nonNullBinding.title.text = currentSong.title
-                    nonNullBinding.text.text = getSongArtist(currentSong)
-                }
+                if (view == null) return@collect
+                binding.title.text = currentSong.title
+                binding.text.text = getSongArtist(currentSong)
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.extraInfoFlow.collect { extraInfo ->
-                _binding?.let { nonNullBinding ->
-                    if (isExtraInfoEnabled()) {
-                        nonNullBinding.songInfo.text = extraInfo
-                        nonNullBinding.songInfo.isVisible = true
-                    } else {
-                        nonNullBinding.songInfo.isVisible = false
-                    }
+                if (view == null) return@collect
+                if (isExtraInfoEnabled()) {
+                    binding.songInfo.text = extraInfo
+                    binding.songInfo.isVisible = true
+                } else {
+                    binding.songInfo.isVisible = false
                 }
             }
         }
@@ -135,8 +132,4 @@ class PeekPlayerFragment : AbsPlayerFragment(R.layout.fragment_peek_player) {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

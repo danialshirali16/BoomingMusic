@@ -15,6 +15,7 @@ import com.mardous.booming.core.model.player.PlayerColorScheme
 import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentExpressivePlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.dp
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -27,8 +28,7 @@ import java.util.LinkedList
 
 class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_expressive_player_playback_controls) {
 
-    private var _binding: FragmentExpressivePlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentExpressivePlayerPlaybackControlsBinding::bind)
 
     override val musicSlider: MusicSlider
         get() = binding.progressSlider
@@ -41,7 +41,6 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentExpressivePlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.setOnClickListener(this)
         binding.nextButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_NEXT))
         binding.previousButton.setOnTouchListener(getSkipButtonTouchHandler(DIRECTION_PREVIOUS))
@@ -53,7 +52,8 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
 
     override fun onControlAnimationStateChanged(isEnabled: Boolean) {
         super.onControlAnimationStateChanged(isEnabled)
-        _binding?.playPauseButton?.isRotating = playerViewModel.isPlaying && isControlAnimationEnabled
+        if (view == null) return
+        binding.playPauseButton.isRotating = playerViewModel.isPlaying && isControlAnimationEnabled
     }
 
     override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {}
@@ -61,7 +61,8 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
     override fun onExtraInfoChanged(extraInfo: String?) {}
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
-        _binding?.playPauseButton?.let {
+        if (view == null) return
+        binding.playPauseButton.let {
             val playPauseIcon = if (isPlaying) {
                 ContextCompat.getDrawable(it.context, R.drawable.avd_play)
             } else {
@@ -91,12 +92,14 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
 
     override fun onShow() {
         super.onShow()
-        _binding?.playPauseButton?.isRotating = playerViewModel.isPlaying && isControlAnimationEnabled
+        if (view == null) return
+        binding.playPauseButton.isRotating = playerViewModel.isPlaying && isControlAnimationEnabled
     }
 
     override fun onHide() {
         super.onHide()
-        _binding?.playPauseButton?.isRotating = false
+        if (view == null) return
+        binding.playPauseButton.isRotating = false
     }
 
     override fun onClick(view: View) {
@@ -106,10 +109,6 @@ class ExpressivePlayerControlsFragment : AbsPlayerControlsFragment(R.layout.frag
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     private class ExpressivePlayerAnimator(
         private val binding: FragmentExpressivePlayerPlaybackControlsBinding,

@@ -36,6 +36,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentM3PlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.whichFragment
@@ -48,8 +49,7 @@ import com.mardous.booming.util.Preferences
  */
 class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
 
-    private var _binding: FragmentM3PlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentM3PlayerBinding::bind)
 
     private lateinit var controlsFragment: M3PlayerControlsFragment
 
@@ -69,7 +69,6 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentM3PlayerBinding.bind(view)
         setupToolbar()
         setupActions()
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
@@ -123,7 +122,8 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
-        _binding?.showLyricsButton?.let {
+        if (view == null) return
+        binding.showLyricsButton?.let {
             if (lyricsVisible) {
                 it.setIconResource(R.drawable.ic_lyrics_24dp)
                 it.contentDescription = getString(R.string.action_hide_lyrics)
@@ -138,8 +138,4 @@ class M3PlayerFragment : AbsPlayerFragment(R.layout.fragment_m3_player) {
         popupMenu?.menu?.setIsFavorite(isFavorite, false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

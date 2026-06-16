@@ -31,6 +31,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentPeekPlayerPlaybackControlsBinding
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DIRECTION_NEXT
@@ -44,14 +45,13 @@ import java.util.LinkedList
  */
 class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_peek_player_playback_controls) {
 
-    private var _binding: FragmentPeekPlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentPeekPlayerPlaybackControlsBinding::bind)
 
     override val repeatButton: MaterialButton?
-        get() = _binding?.repeatButton
+        get() = if (view == null) null else binding.repeatButton
 
     override val shuffleButton: MaterialButton?
-        get() = _binding?.shuffleButton
+        get() = if (view == null) null else binding.shuffleButton
 
     override val musicSlider: MusicSlider?
         get() = binding.progressSlider
@@ -65,7 +65,6 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentPeekPlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
@@ -115,10 +114,11 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
     override fun onExtraInfoChanged(extraInfo: String?) {}
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
+        if (view == null) return
         if (isPlaying) {
-            _binding?.playPauseButton?.setIconResource(R.drawable.ic_pause_24dp)
+            binding.playPauseButton.setIconResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setIconResource(R.drawable.ic_play_24dp)
+            binding.playPauseButton.setIconResource(R.drawable.ic_play_24dp)
         }
     }
 
@@ -131,10 +131,6 @@ class PeekPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_p
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     private class PeekPlayerAnimator(
         private val binding: FragmentPeekPlayerPlaybackControlsBinding,
