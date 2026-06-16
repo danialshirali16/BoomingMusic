@@ -31,6 +31,7 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.action.NowPlayingAction
 import com.mardous.booming.core.model.player.*
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentGradientPlayerBinding
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -39,8 +40,7 @@ import com.mardous.booming.util.Preferences
 
 class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_player), View.OnClickListener {
 
-    private var _binding: FragmentGradientPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentGradientPlayerBinding::bind)
 
     private lateinit var controlsFragment: GradientPlayerControlsFragment
 
@@ -52,7 +52,6 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentGradientPlayerBinding.bind(view)
         ViewCompat.setOnApplyWindowInsetsListener(binding.bottomActionContainer) { v: View, insets: WindowInsetsCompat ->
             val navigationBar = insets.getInsets(Type.systemBars())
             v.updatePadding(bottom = navigationBar.bottom)
@@ -94,10 +93,6 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {
         val oldMaskColor = binding.mask.backgroundTintList?.defaultColor
@@ -115,7 +110,8 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
-        _binding?.showLyricsButton?.let {
+        if (view == null) return
+        binding.showLyricsButton?.let {
             if (lyricsVisible) {
                 it.setIconResource(R.drawable.ic_lyrics_24dp)
                 it.contentDescription = getString(R.string.action_hide_lyrics)

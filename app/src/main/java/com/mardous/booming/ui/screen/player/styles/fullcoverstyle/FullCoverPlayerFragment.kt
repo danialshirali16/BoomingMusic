@@ -36,6 +36,7 @@ import com.mardous.booming.core.model.action.NowPlayingAction
 import com.mardous.booming.core.model.player.*
 import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentFullCoverPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -53,8 +54,7 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     SharedPreferences.OnSharedPreferenceChangeListener,
     View.OnClickListener {
 
-    private var _binding: FragmentFullCoverPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentFullCoverPlayerBinding::bind)
 
     private lateinit var controlsFragment: FullCoverPlayerControlsFragment
 
@@ -68,7 +68,6 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentFullCoverPlayerBinding.bind(view)
         errorDrawable = view.context.getPlaceholderDrawable(DEFAULT_SONG_IMAGE)
         setupListeners()
         setupNextSongVisibility()
@@ -81,12 +80,13 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.nextSongFlow.collect { nextSong ->
+                if (view == null) return@collect
                 if (nextSong != Song.emptySong) {
-                    _binding?.nextSongAlbumArt?.songImage(nextSong)
-                    _binding?.nextSongText?.text = nextSong.title
+                    binding.nextSongAlbumArt.songImage(nextSong)
+                    binding.nextSongText.text = nextSong.title
                 } else {
-                    _binding?.nextSongText?.setText(R.string.list_end)
-                    _binding?.nextSongAlbumArt?.setImageDrawable(errorDrawable)
+                    binding.nextSongText.setText(R.string.list_end)
+                    binding.nextSongAlbumArt.setImageDrawable(errorDrawable)
                 }
             }
         }
@@ -102,12 +102,11 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     }
 
     private fun setupNextSongVisibility() {
+        if (view == null) return
         val showNextSong = Preferences.isShowNextSong
-        _binding?.let {
-            it.nextSongAlbumArt.isVisible = showNextSong
-            it.nextSongLabel.isVisible = showNextSong
-            it.nextSongText.isVisible = showNextSong
-        }
+        binding.nextSongAlbumArt.isVisible = showNextSong
+        binding.nextSongLabel.isVisible = showNextSong
+        binding.nextSongText.isVisible = showNextSong
     }
 
     override fun onClick(view: View) {
@@ -159,7 +158,6 @@ class FullCoverPlayerFragment : AbsPlayerFragment(R.layout.fragment_full_cover_p
     override fun onDestroyView() {
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroyView()
-        _binding = null
     }
 
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {

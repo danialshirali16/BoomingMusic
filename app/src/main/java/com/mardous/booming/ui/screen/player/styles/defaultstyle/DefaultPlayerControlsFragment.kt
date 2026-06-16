@@ -40,6 +40,7 @@ import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.databinding.FragmentDefaultPlayerPlaybackControlsBinding
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.extensions.resources.centerPivot
 import com.mardous.booming.extensions.resources.showBounceAnimation
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -56,8 +57,7 @@ import java.util.LinkedList
  */
 class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_default_player_playback_controls) {
 
-    private var _binding: FragmentDefaultPlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentDefaultPlayerPlaybackControlsBinding::bind)
 
     override val playPauseFab: FloatingActionButton
         get() = binding.playPauseButton
@@ -88,7 +88,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentDefaultPlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.doOnLayout { it.centerPivot() }
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
@@ -104,29 +103,28 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     }
 
     override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {
-        _binding?.let { nonNullBinding ->
-            nonNullBinding.title.text = currentSong.title
-            nonNullBinding.text.text = getSongArtist(currentSong)
-            nonNullBinding.queueInfo.text = getNextSongInfo(nextSong)
-        }
+        if (view == null) return
+        binding.title.text = currentSong.title
+        binding.text.text = getSongArtist(currentSong)
+        binding.queueInfo.text = getNextSongInfo(nextSong)
     }
 
     override fun onExtraInfoChanged(extraInfo: String?) {
-        _binding?.let { nonNullBinding ->
-            if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo?.text = extraInfo
-                nonNullBinding.songInfo?.isVisible = true
-            } else {
-                nonNullBinding.songInfo?.isVisible = false
-            }
+        if (view == null) return
+        if (isExtraInfoEnabled()) {
+            binding.songInfo?.text = extraInfo
+            binding.songInfo?.isVisible = true
+        } else {
+            binding.songInfo?.isVisible = false
         }
     }
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
+        if (view == null) return
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_play_24dp)
         }
     }
 
@@ -145,13 +143,12 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
     }
 
     private fun setupQueueInfoView() {
-        _binding?.let { binding ->
-            if (Preferences.isShowNextSong) {
-                binding.queueInfo.visibility = View.VISIBLE
-                setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
-            } else {
-                binding.queueInfo.visibility = View.GONE
-            }
+        if (view == null) return
+        if (Preferences.isShowNextSong) {
+            binding.queueInfo.visibility = View.VISIBLE
+            setViewAction(binding.queueInfo, NowPlayingAction.OpenPlayQueue)
+        } else {
+            binding.queueInfo.visibility = View.GONE
         }
     }
 
@@ -162,11 +159,6 @@ class DefaultPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
                 setupQueueInfoView()
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     override fun getTintTargets(scheme: PlayerColorScheme): List<PlayerTintTarget> {

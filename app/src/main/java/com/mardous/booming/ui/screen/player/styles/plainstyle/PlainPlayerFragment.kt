@@ -34,6 +34,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentPlainPlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -47,8 +48,7 @@ import com.mardous.booming.util.Preferences
  */
 class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
 
-    private var _binding: FragmentPlainPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentPlainPlayerBinding::bind)
 
     private lateinit var controlsFragment: PlainPlayerControlsFragment
 
@@ -66,7 +66,6 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentPlainPlayerBinding.bind(view)
         setupToolbar()
         inflateMenuInView(playerToolbar)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
@@ -78,10 +77,9 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect { currentSong ->
-                _binding?.let { nonNullBinding ->
-                    nonNullBinding.title.text = currentSong.title
-                    nonNullBinding.text.text = getSongArtist(currentSong)
-                }
+                if (view == null) return@collect
+                binding.title.text = currentSong.title
+                binding.text.text = getSongArtist(currentSong)
             }
         }
     }
@@ -121,8 +119,4 @@ class PlainPlayerFragment : AbsPlayerFragment(R.layout.fragment_plain_player) {
         controlsFragment = whichFragment(R.id.playbackControlsFragment)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

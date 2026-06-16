@@ -36,6 +36,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentDefaultPlayerBinding
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -49,8 +50,7 @@ import com.mardous.booming.util.Preferences
 class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private var _binding: FragmentDefaultPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentDefaultPlayerBinding::bind)
 
     private lateinit var controlsFragment: DefaultPlayerControlsFragment
 
@@ -70,7 +70,6 @@ class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentDefaultPlayerBinding.bind(view)
         setupToolbar()
         inflateMenuInView(playerToolbar)
         ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
@@ -129,6 +128,5 @@ class DefaultPlayerFragment : AbsPlayerFragment(R.layout.fragment_default_player
     override fun onDestroyView() {
         Preferences.unregisterOnSharedPreferenceChangeListener(this)
         super.onDestroyView()
-        _binding = null
     }
 }

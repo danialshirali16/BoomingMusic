@@ -22,6 +22,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.surfaceTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentExpressivePlayerBinding
 import com.mardous.booming.extensions.getOnBackPressedDispatcher
 import com.mardous.booming.extensions.isLandscape
@@ -36,8 +37,7 @@ import com.mardous.booming.util.Preferences
 class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_player),
     View.OnClickListener, View.OnLongClickListener {
 
-    private var _binding: FragmentExpressivePlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentExpressivePlayerBinding::bind)
 
     private lateinit var controlsFragment: ExpressivePlayerControlsFragment
 
@@ -58,7 +58,6 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentExpressivePlayerBinding.bind(view)
         setupToolbar()
         setupActions()
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -94,21 +93,19 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect { currentSong ->
-                _binding?.let { nonNullBinding ->
-                    nonNullBinding.title.text = currentSong.title
-                    nonNullBinding.text.text = getSongArtist(currentSong)
-                }
+                if (view == null) return@collect
+                binding.title.text = currentSong.title
+                binding.text.text = getSongArtist(currentSong)
             }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.extraInfoFlow.collect { extraInfo ->
-                _binding?.let { nonNullBinding ->
-                    if (isExtraInfoEnabled()) {
-                        nonNullBinding.songInfo.text = extraInfo
-                        nonNullBinding.songInfo.isVisible = true
-                    } else {
-                        nonNullBinding.songInfo.isVisible = false
-                    }
+                if (view == null) return@collect
+                if (isExtraInfoEnabled()) {
+                    binding.songInfo.text = extraInfo
+                    binding.songInfo.isVisible = true
+                } else {
+                    binding.songInfo.isVisible = false
                 }
             }
         }
@@ -219,7 +216,8 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
     }
 
     override fun onLyricsVisibilityChange(animatorSet: AnimatorSet, lyricsVisible: Boolean) {
-        _binding?.showLyricsButton?.let {
+        if (view == null) return
+        binding.showLyricsButton?.let {
             if (lyricsVisible) {
                 it.setIconResource(R.drawable.ic_lyrics_24dp)
                 it.contentDescription = getString(R.string.action_hide_lyrics)
@@ -240,8 +238,4 @@ class ExpressivePlayerFragment : AbsPlayerFragment(R.layout.fragment_expressive_
         setMarquee(binding.title, binding.text, binding.songInfo, marquee = false)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

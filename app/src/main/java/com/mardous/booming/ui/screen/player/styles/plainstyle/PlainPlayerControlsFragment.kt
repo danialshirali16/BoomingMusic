@@ -35,6 +35,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentPlainPlayerPlaybackControlsBinding
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
 import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DIRECTION_NEXT
@@ -48,8 +49,7 @@ import java.util.LinkedList
  */
 class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_plain_player_playback_controls) {
 
-    private var _binding: FragmentPlainPlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentPlainPlayerPlaybackControlsBinding::bind)
 
     override val playPauseFab: FloatingActionButton
         get() = binding.playPauseButton
@@ -74,7 +74,6 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentPlainPlayerPlaybackControlsBinding.bind(view)
         binding.playPauseButton.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
         binding.repeatButton.setOnClickListener(this)
@@ -124,21 +123,21 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
     override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {}
 
     override fun onExtraInfoChanged(extraInfo: String?) {
-        _binding?.let { nonNullBinding ->
-            if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo.text = extraInfo
-                nonNullBinding.songInfo.isVisible = true
-            } else {
-                nonNullBinding.songInfo.isVisible = false
-            }
+        if (view == null) return
+        if (isExtraInfoEnabled()) {
+            binding.songInfo.text = extraInfo
+            binding.songInfo.isVisible = true
+        } else {
+            binding.songInfo.isVisible = false
         }
     }
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
+        if (view == null) return
         if (isPlaying) {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_pause_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setImageResource(R.drawable.ic_play_24dp)
+            binding.playPauseButton.setImageResource(R.drawable.ic_play_24dp)
         }
     }
 
@@ -151,10 +150,6 @@ class PlainPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     private class PlainPlayerAnimator(
         private val binding: FragmentPlainPlayerPlaybackControlsBinding,

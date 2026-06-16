@@ -35,6 +35,7 @@ import com.mardous.booming.core.model.player.PlayerTintTarget
 import com.mardous.booming.core.model.player.iconButtonTintTarget
 import com.mardous.booming.core.model.player.tintTarget
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.extensions.viewBinding
 import com.mardous.booming.databinding.FragmentGradientPlayerPlaybackControlsBinding
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.ui.component.base.AbsPlayerControlsFragment
@@ -44,8 +45,7 @@ import com.mardous.booming.ui.component.views.MusicSlider
 
 class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragment_gradient_player_playback_controls) {
 
-    private var _binding: FragmentGradientPlayerPlaybackControlsBinding? = null
-    private val binding get() = _binding!!
+    private val binding by viewBinding(FragmentGradientPlayerPlaybackControlsBinding::bind)
 
     override val musicSlider: MusicSlider?
         get() = binding.progressSlider
@@ -76,7 +76,6 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        _binding = FragmentGradientPlayerPlaybackControlsBinding.bind(view)
         setupListeners()
         setViewAction(binding.favorite, NowPlayingAction.ToggleFavoriteState)
         popupMenu = playerFragment?.inflateMenuInView(binding.menu)
@@ -146,28 +145,27 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
     }
 
     override fun onSongInfoChanged(currentSong: Song, nextSong: Song) {
-        _binding?.let { nonNullBinding ->
-            nonNullBinding.title.text = currentSong.title
-            nonNullBinding.text.text = getSongArtist(currentSong)
-        }
+        if (view == null) return
+        binding.title.text = currentSong.title
+        binding.text.text = getSongArtist(currentSong)
     }
 
     override fun onExtraInfoChanged(extraInfo: String?) {
-        _binding?.let { nonNullBinding ->
-            if (isExtraInfoEnabled()) {
-                nonNullBinding.songInfo.text = extraInfo
-                nonNullBinding.songInfo.isVisible = true
-            } else {
-                nonNullBinding.songInfo.isVisible = false
-            }
+        if (view == null) return
+        if (isExtraInfoEnabled()) {
+            binding.songInfo.text = extraInfo
+            binding.songInfo.isVisible = true
+        } else {
+            binding.songInfo.isVisible = false
         }
     }
 
     override fun onUpdatePlayPause(isPlaying: Boolean) {
+        if (view == null) return
         if (isPlaying) {
-            _binding?.playPauseButton?.setIconResource(R.drawable.ic_pause_24dp)
+            binding.playPauseButton.setIconResource(R.drawable.ic_pause_24dp)
         } else {
-            _binding?.playPauseButton?.setIconResource(R.drawable.ic_play_24dp)
+            binding.playPauseButton.setIconResource(R.drawable.ic_play_24dp)
         }
     }
 
@@ -182,8 +180,4 @@ class GradientPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragme
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
